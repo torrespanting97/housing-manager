@@ -37,7 +37,6 @@ class Property(db.Model):
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     status = db.Column(db.String(50), default="For Sale")
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    new_field = db.Column(db.String(100))  # Add this new field
     
     def __repr__(self):
         return f'<Property {self.address}>'
