@@ -1,6 +1,5 @@
-from .app import app, login_manager
-from .extensions import db
-from .models import Property, User
+from app import app, login_manager, db
+from models import Property, User
 from flask import render_template, request, jsonify, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required, current_user
 
@@ -8,9 +7,9 @@ from flask_login import login_user, logout_user, login_required, current_user
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-with app.app_context():
-    db.drop_all()  # This will delete all tables
-    db.create_all()  # This will create new tables with current schema
+@app.route('/')
+def home():
+    return redirect(url_for('map_view'))
 
 # Authentication Routes
 @app.route('/login', methods=['GET', 'POST'])
@@ -57,10 +56,6 @@ def signup():
 def logout():
     logout_user()
     return redirect(url_for('login'))
-
-@app.route('/')
-def home():
-    return redirect(url_for('map_view'))
 
 @app.route('/map')
 @login_required
