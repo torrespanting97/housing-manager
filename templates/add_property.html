@@ -41,12 +41,12 @@
         
         <div class="form-row">
             <div class="form-group">
-                <label for="square_feet">Square Feet</label>
+                <label for="square_feet">Size</label>
                 <input type="number" id="square_feet" name="square_feet" required>
             </div>
             
             <div class="form-group">
-                <label for="lot_size">Lot Size (acres)</label>
+                <label for="lot_size">Lot Size (m2)</label>
                 <input type="number" id="lot_size" name="lot_size" step="0.01" required>
             </div>
             
@@ -68,7 +68,7 @@
         
         <div class="form-group">
             <label for="description">Description</label>
-            <textarea id="description" name="description" rows="4"></textarea>
+            <textarea name="description" rows="6" class="form-control">{{ property.description if property else '' }}</textarea>
         </div>
         
         <button type="submit" class="btn">Add Property</button>

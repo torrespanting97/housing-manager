@@ -597,3 +597,14 @@ nav a:hover {
     padding: 20px;
     color: #666;
 }
+
+.property-description {
+    white-space: pre-wrap; /* Preserves both spaces and line breaks */
+    word-wrap: break-word; /* Ensures long words don't overflow */
+    font-family: inherit; /* Maintains consistent font */
+    line-height: 1.5; /* Improves readability */
+    padding: 0.5em 0; /* Adds some vertical spacing */
+}
+.property-description br {
+    margin-bottom: 0.5em; /* Adds spacing after line breaks */
+}

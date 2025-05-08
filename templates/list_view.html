@@ -45,7 +45,7 @@
             </div>
             
             <div class="filter-group">
-                <label for="min_size">Min Size (sqft)</label>
+                <label for="min_size">Min Size (m2)</label>
                 <input type="number" id="min_size" name="min_size" 
                        value="{{ request.args.get('min_size', '') }}" placeholder="sqft">
             </div>
@@ -77,9 +77,11 @@
             <tr>
                 <th>Address</th>
                 <th>Price</th>
-                <th>Bed</th>
-                <th>Bath</th>
-                <th>Size (sqft)</th>
+                <th>Beds</th>
+                <th>Baths</th>
+                <th>Size (m2)</th>
+                <th>Lot Size (m2)</th>
+                <th>Years</th>
                 <th>Status</th>
                 <th>Actions</th>
             </tr>
@@ -92,6 +94,8 @@
                 <td>{{ property.bedrooms }}</td>
                 <td>{{ property.bathrooms }}</td>
                 <td>{{ "{:,.0f}".format(property.square_feet) }}</td>
+                <td>{{ "{:,.0f}".format(property.lot_size) }}</td>
+                <td>{{ property.year_built }}</td>
                 <td>{{ property.status }}</td>
                 <td class="action-buttons">
                     <a href="{{ url_for('property_detail', property_id=property.id) }}" class="btn view-btn">View</a>

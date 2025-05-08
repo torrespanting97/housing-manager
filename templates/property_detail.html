@@ -15,14 +15,14 @@
             <p><strong>Status:</strong> {{ property.status }}</p>
             <p><strong>Bedrooms:</strong> {{ property.bedrooms }}</p>
             <p><strong>Bathrooms:</strong> {{ property.bathrooms }}</p>
-            <p><strong>Square Feet:</strong> {{ "{:,.0f}".format(property.square_feet) }}</p>
-            <p><strong>Lot Size:</strong> {{ property.lot_size }} acres</p>
+            <p><strong>Size:</strong> {{ "{:,.0f}".format(property.square_feet) }}</p>
+            <p><strong>Lot Size:</strong> {{ property.lot_size }} m2</p>
             <p><strong>Year Built:</strong> {{ property.year_built }}</p>
         </div>
         
         <div class="detail-section">
             <h3>Description</h3>
-            <p>{{ property.description }}</p>
+            <div class="property-description">{{ property.description }}</div>
         </div>
         
         <div class="detail-section">
@@ -39,7 +39,7 @@
                     'price': property.price,
                     'status': property.status,
                     'bedrooms': property.bedrooms,
-                    'bathrooms': property.bathrooms
+                    'bathrooms': property.bathrooms 
                 }|tojson|safe }}
             </div>
         </div>
