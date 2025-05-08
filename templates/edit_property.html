@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <h2>Edit Property</h2>
+    
+    <form method="POST" action="{{ url_for('edit_property', property_id=property.id) }}">
+        <div class="form-group">
+            <label for="address">Address</label>
+            <input type="text" id="address" name="address" value="{{ property.address }}" required>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="price">Price ($)</label>
+                <input type="number" id="price" name="price" step="0.01" value="{{ property.price }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="bedrooms">Bedrooms</label>
+                <input type="number" id="bedrooms" name="bedrooms" value="{{ property.bedrooms }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="bathrooms">Bathrooms</label>
+                <input type="number" id="bathrooms" name="bathrooms" step="0.5" value="{{ property.bathrooms }}" required>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="square_feet">Square Feet</label>
+                <input type="number" id="square_feet" name="square_feet" value="{{ property.square_feet }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="lot_size">Lot Size (acres)</label>
+                <input type="number" id="lot_size" name="lot_size" step="0.01" value="{{ property.lot_size }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="year_built">Year Built</label>
+                <input type="number" id="year_built" name="year_built" value="{{ property.year_built }}" required>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="latitude">Latitude</label>
+                <input type="number" id="latitude" name="latitude" step="0.0000000000000000000000001" value="{{ property.latitude }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="longitude">Longitude</label>
+                <input type="number" id="longitude" name="longitude" step="0.0000000000000000000000001" value="{{ property.longitude }}" required>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="status">Status</label>
+            <select id="status" name="status" required>
+                <option value="For Sale" {% if property.status == 'For Sale' %}selected{% endif %}>For Sale</option>
+                <option value="Sold" {% if property.status == 'Sold' %}selected{% endif %}>Sold</option>
+                <option value="Pending" {% if property.status == 'Pending' %}selected{% endif %}>Pending</option>
+                <option value="Off Market" {% if property.status == 'Off Market' %}selected{% endif %}>Off Market</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="4">{{ property.description }}</textarea>
+        </div>
+        
+        <button type="submit" class="btn">Update Property</button>
+        <a href="{{ url_for('property_detail', property_id=property.id) }}" class="btn cancel-btn">Cancel</a>
+    </form>
+</div>
+{% endblock %}

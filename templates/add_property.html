@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <h2>Add New Property</h2>
+    
+    <form method="POST" action="{{ url_for('add_property') }}">
+        <div class="form-group">
+            <label for="address">Address</label>
+            <input type="text" id="address" name="address" required>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="latitude">Latitude</label>
+                <input type="number" id="latitude" name="latitude" step="0.000001" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="longitude">Longitude</label>
+                <input type="number" id="longitude" name="longitude" step="0.000001" required>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="price">Price ($)</label>
+                <input type="number" id="price" name="price" step="0.01" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="bedrooms">Bedrooms</label>
+                <input type="number" id="bedrooms" name="bedrooms" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="bathrooms">Bathrooms</label>
+                <input type="number" id="bathrooms" name="bathrooms" step="0.5" required>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="square_feet">Square Feet</label>
+                <input type="number" id="square_feet" name="square_feet" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="lot_size">Lot Size (acres)</label>
+                <input type="number" id="lot_size" name="lot_size" step="0.01" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="year_built">Year Built</label>
+                <input type="number" id="year_built" name="year_built" required>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="status">Status</label>
+            <select id="status" name="status" required>
+                <option value="For Sale">For Sale</option>
+                <option value="Sold">Sold</option>
+                <option value="Pending">Pending</option>
+                <option value="Off Market">Off Market</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="4"></textarea>
+        </div>
+        
+        <button type="submit" class="btn">Add Property</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById('address').addEventListener('blur', async function() {
+        const address = this.value.trim();
+        if (!address) return;
+        
+        try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`);
+            const results = await response.json();
+            
+            if (results && results.length > 0) {
+                document.getElementById('latitude').value = parseFloat(results[0].lat).toFixed(6);
+                document.getElementById('longitude').value = parseFloat(results[0].lon).toFixed(6);
+            }
+        } catch (error) {
+            console.error('Geocoding error:', error);
+        }
+    });
+    </script>
+{% endblock %}

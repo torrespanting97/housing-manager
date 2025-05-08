@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v7.3.0/ol.css">
+{% endblock %}
+
+{% block content %}
+<div class="map-container">
+    <div id="map" class="map"></div>
+</div>
+
+<div class="search-container">
+    <input type="text" id="address-search" placeholder="Search by address or coordinates (lat, lon)...">
+    <button id="search-btn" class="btn">Search</button>
+    <div class="search-hint">Try: '40.7128, -74.0060' or 'New York'</div>
+</div>
+
+<!-- Hidden element to store properties data -->
+<div id="map-data" style="display:none;">{{ properties|tojson|safe }}</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/ol.js') }}"></script>
+<script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const propertiesData = document.getElementById('map-data').textContent;
+        const properties = JSON.parse(propertiesData);
+        initMap(properties);
+    });
+</script>
+{% endblock %}

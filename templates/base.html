@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate Registry</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <h1>My Property Portfolio</h1>
+        </div>
+        <div class="user-controls">
+            {% if current_user.is_authenticated %}
+                <span class="welcome-message">Welcome, {{ current_user.username }}!</span>
+                <a href="{{ url_for('add_property') }}" class="btn">Add Property</a>
+                <a href="{{ url_for('logout') }}" class="btn btn-logout">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="btn">Login</a>
+                <a href="{{ url_for('signup') }}" class="btn btn-signup">Sign Up</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('map_view') }}" {% if request.path == '/map' %}class="active"{% endif %}>Map View</a></li>
+            <li><a href="{{ url_for('list_view') }}" {% if request.path == '/list' %}class="active"{% endif %}>List View</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2023 Real Estate Registry</p>
+        </div>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

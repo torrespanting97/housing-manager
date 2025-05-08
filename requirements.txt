@@ -1,0 +1,6 @@
+Flask==2.3.2
+Flask-SQLAlchemy==3.0.3
+geopy==2.3.0
+python-dotenv==1.0.0
+flask_login==0.6.3
+flask-migrate==4.1.0

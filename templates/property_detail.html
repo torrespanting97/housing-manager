@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v7.3.0/ol.css">
+{% endblock %}
+
+{% block content %}
+<div class="property-detail">
+    <h2>{{ property.address }}</h2>
+    
+    <div class="detail-sections">
+        <div class="detail-section">
+            <h3>Basic Information</h3>
+            <p><strong>Price:</strong> ${{ "{:,.0f}".format(property.price) }}</p>
+            <p><strong>Status:</strong> {{ property.status }}</p>
+            <p><strong>Bedrooms:</strong> {{ property.bedrooms }}</p>
+            <p><strong>Bathrooms:</strong> {{ property.bathrooms }}</p>
+            <p><strong>Square Feet:</strong> {{ "{:,.0f}".format(property.square_feet) }}</p>
+            <p><strong>Lot Size:</strong> {{ property.lot_size }} acres</p>
+            <p><strong>Year Built:</strong> {{ property.year_built }}</p>
+        </div>
+        
+        <div class="detail-section">
+            <h3>Description</h3>
+            <p>{{ property.description }}</p>
+        </div>
+        
+        <div class="detail-section">
+            <h3>Location</h3>
+            <div id="property-map" class="map" style="height: 300px;"></div>
+            <!-- Hidden element to store property data -->
+                        <!-- Hidden element to store property data -->
+            <div id="property-data" style="display:none;">
+                {{ {
+                    'id': property.id,
+                    'address': property.address,
+                    'latitude': property.latitude,
+                    'longitude': property.longitude,
+                    'price': property.price,
+                    'status': property.status,
+                    'bedrooms': property.bedrooms,
+                    'bathrooms': property.bathrooms
+                }|tojson|safe }}
+            </div>
+        </div>
+    </div>
+    
+    <div class="actions">
+        <a href="{{ url_for('list_view') }}" class="btn">Back to List</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/ol.js') }}"></script>
+<script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            const propertyDataElement = document.getElementById('property-data');
+            const mapElement = document.getElementById('property-map');
+            
+            if (!propertyDataElement || !mapElement) {
+                console.log('Property detail elements not found - expected on other pages');
+                return;
+            }
+            
+            const propertyData = propertyDataElement.textContent;
+            if (!propertyData) {
+                showPropertyMapError('No property data available');
+                return;
+            }
+    
+            let property;
+            try {
+                property = JSON.parse(propertyData);
+            } catch (e) {
+                console.error('JSON parse error:', e);
+                showPropertyMapError('Invalid property data format');
+                return;
+            }
+    
+            // Check for coordinates - show error if missing
+            if (!property.latitude || !property.longitude) {
+                showPropertyMapError('Property location data missing');
+                showFallbackMap();
+                return;
+            }
+    
+            // Initialize the property map with coordinates
+            initPropertyDetailMap(property);
+    
+        } catch (error) {
+            console.error('Property map initialization error:', error);
+            showPropertyMapError('Failed to load property map');
+        }
+    });
+    
+    function initPropertyDetailMap(property) {
+        // Create map
+        const map = new ol.Map({
+            target: 'property-map',
+            layers: [
+                new ol.layer.Tile({
+                    source: new ol.source.OSM()
+                })
+            ],
+            controls: [
+                new ol.control.Zoom(),  // Add zoom control
+                new ol.control.FullScreen()  // Add fullscreen control
+            ],
+            view: new ol.View({
+                center: ol.proj.fromLonLat([parseFloat(property.longitude), parseFloat(property.latitude)]),
+                zoom: 15
+            })
+        });
+
+        // Create marker with custom style based on property status
+        const marker = new ol.Feature({
+            geometry: new ol.geom.Point(
+                ol.proj.fromLonLat([parseFloat(property.longitude), parseFloat(property.latitude)])
+            ),
+            property: property
+        });
+
+        // Different marker colors based on status
+        let iconColor = 'blue';
+        if (property.status === 'Sold') iconColor = 'red';
+        if (property.status === 'Pending') iconColor = 'orange';
+        if (property.status === 'Off Market') iconColor = 'gray';
+
+        marker.setStyle(new ol.style.Style({
+            image: new ol.style.Icon({
+                src: `https://maps.google.com/mapfiles/ms/icons/${iconColor}-dot.png`,
+                scale: 1
+            })
+        }));
+
+        // Add popup with property info
+        const popup = new ol.Overlay({
+            element: document.createElement('div'),
+            positioning: 'bottom-center',
+            stopEvent: false
+        });
+        map.addOverlay(popup);
+
+        // Style popup element
+        const popupElement = popup.getElement();
+        popupElement.className = 'ol-popup';
+        popupElement.innerHTML = `
+            <div class="popup-content">
+                <h4>${property.address}</h4>
+                <p>$${property.price.toLocaleString()}</p>
+                <p>${property.bedrooms} beds, ${property.bathrooms} baths</p>
+            </div>
+        `;
+        popup.setPosition(ol.proj.fromLonLat([parseFloat(property.longitude), parseFloat(property.latitude)]));
+
+        // Add marker layer
+        const vectorSource = new ol.source.Vector({
+            features: [marker]
+        });
+
+        const vectorLayer = new ol.layer.Vector({
+            source: vectorSource
+        });
+
+        map.addLayer(vectorLayer);
+
+        // Add click handler to recenter map on marker
+        map.on('click', function(evt) {
+            const feature = map.forEachFeatureAtPixel(evt.pixel, function(feature) {
+                return feature;
+            });
+            
+            if (feature) {
+                map.getView().animate({
+                    center: feature.getGeometry().getCoordinates(),
+                    zoom: 16,
+                    duration: 500
+                });
+            }
+        });
+
+        // Change cursor when hovering over marker
+        map.on('pointermove', function(e) {
+            const pixel = map.getEventPixel(e.originalEvent);
+            const hit = map.hasFeatureAtPixel(pixel);
+            map.getTargetElement().style.cursor = hit ? 'pointer' : '';
+        });
+    }
+    
+    function showFallbackMap() {
+        // Show a generic world map when coordinates are missing
+        new ol.Map({
+            target: 'property-map',
+            layers: [
+                new ol.layer.Tile({
+                    source: new ol.source.OSM()
+                })
+            ],
+            view: new ol.View({
+                center: ol.proj.fromLonLat([0, 0]),
+                zoom: 2
+            })
+        });
+    }
+    
+    function showPropertyMapError(message) {
+        const errorElement = document.createElement('div');
+        errorElement.className = 'property-map-error';
+        errorElement.textContent = message;
+        
+        const existingError = document.querySelector('.property-map-error');
+        if (existingError) existingError.remove();
+        
+        const mapContainer = document.getElementById('property-map');
+        if (mapContainer) {
+            mapContainer.appendChild(errorElement);
+            setTimeout(() => errorElement.classList.add('visible'), 100);
+            
+            // Remove error after 5 seconds
+            setTimeout(() => {
+                errorElement.classList.remove('visible');
+                setTimeout(() => errorElement.remove(), 500);
+            }, 5000);
+        }
+    }
+</script>
+{% endblock %}
